@@ -1,3 +1,9 @@
+# Development fork for LED Fixes + Feature enhancements
+
+This fork is not yet ready for use.
+
+The following is the original README from the parent obsolescence/pidp11 repo and may not be entirely applicable here. 
+
 # Github repository for the PiDP-11 project
 
 Main web sites:
