@@ -20,6 +20,7 @@
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+ 05-Sep-2025	TK		Merge mutex fix from Bill Ezell
  03-FEB-2019	JH		mutex to make read and write to buffer atomic (PiDP11 server crashes)
  12-Mar-2016	JH      created
  */
@@ -290,13 +291,23 @@ void historybuffer_get_average_vals(historybuffer_t *_this, uint64_t averaging_i
     memset(_this->control->averaged_value_bits, 0, sizeof(_this->control->averaged_value_bits));
     _this->control->averaged_value = 0;
 
+	// wje - the lock must be placed before historybuffer_fill() is called.
+    // Otherwise, it can return an index valid at the time but that becomes invalid
+    // by the time historybuffer_get() is called because historybuffer_set_val() could have run in between the two
+    // calls, and could have caused a buffer wrap.
+    #ifdef USE_MUTEX
+    pthread_mutex_lock(&_this->mutex) ; // inhibit concurrent writes
+    #endif
     last_idx = historybuffer_fill(_this) - 1;
     if (last_idx < 0)
-        return; // buffer empty, return all 0's
-#ifdef USE_MUTEX
-	pthread_mutex_lock(&_this->mutex) ; // inhibit concurrent writes
-#endif
-    hbe = historybuffer_get(_this, last_idx);
+	{
+	#ifdef USE_MUTEX
+    	pthread_mutex_unlock(&_this->mutex) ; // allow write
+    #endif
+		return; // buffer empty, return all 0's
+	}
+	
+	hbe = historybuffer_get(_this, last_idx);
     assert(hbe != NULL);
 
     if (averaging_interval_us == 0) {
