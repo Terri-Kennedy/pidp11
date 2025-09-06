@@ -1,3 +1,5 @@
+CC = gcc
+
 SOURCES.c = \
 	scansw.c	\
 	pinctrl/gpiochip_bcm2712.c  pinctrl/gpiochip_rp1.c  pinctrl/util.c \
