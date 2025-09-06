@@ -149,6 +149,8 @@ while true; do
             break
 	    ;;
         [Cc]* ) 
+			echo
+	    	echo Recompiling from source
             sudo rm $pidpath/src/02.3_simh/4.x+realcons/bin-rpi/pdp11_realcons
             sudo rm $pidpath/src/11_pidp_server/scanswitch/scansw
             sudo rm $pidpath/src/11_pidp_server/pidp11/bin-rpi/pidp1170_blinkenlightd
@@ -166,6 +168,7 @@ while true; do
   			break
 	    ;;
         [Ss]* ) 
+			echo
             echo Skipped putting new binaries in place, things left untouched. 
             echo Rerun install if PiDP-11 does not work!
             break
