@@ -7,7 +7,7 @@ set -e
 # Debugging:
 # set -x
 
-pwd
+#pwd
 export MAKETARGETS="pidp1170_blinkenlightd"
 
 #export MAKE_CONFIGURATION=DEBUG
