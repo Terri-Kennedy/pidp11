@@ -10,12 +10,12 @@
 
 # check this script is NOT run as root
 if [ "$(whoami)" = "root" ]; then
-    echo script must NOT be run as root
+    echo This script must NOT be run as root!
     exit 1
 fi
 
 if [ ! -d "/opt/pidp11" ]; then
-    echo clone git repo into /opt/
+    echo Please clone git repo into /opt before proceeding!
     exit 1
 fi
 
