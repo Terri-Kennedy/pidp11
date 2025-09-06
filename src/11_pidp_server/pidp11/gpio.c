@@ -20,6 +20,7 @@
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+ 06-Jul-2025  TK    Merge mutex additions from Eric N, add comments about knob rotation direction
  18-Dec-2023  OV    new GPIO interface using the code of pinctrl, needed for Pi 5
  14-Aug-2019  OV    fix for Raspberry Pi 4's different pullup configuration
  01-Jul-2017  MH    remove INP_GPIO before OUT_GPIO and change knobValue
@@ -160,7 +161,7 @@ void *blink(int *terminate)
 		gpio_set_pull(rows[i], PULL_UP);
 	}
 
-	printf("\nPiDP-11 FP 2023\n");
+	printf("\nPiDP-11 FP 20250706\n");
 
 // ========== TEMPORARY TEST LOOP
 	while (*terminate == 0) {
@@ -174,8 +175,14 @@ void *blink(int *terminate)
 			// each phase must be eact same duration, so include switch scanning here
 
 			// the original gpio_ledstatus[8] runs trough all phases
+			// safely grab the current page index			
+			int idx;
+			pthread_mutex_lock(&gpiopattern_swap_lock);
+			idx = gpiopattern_ledstatus_phases_readidx;
+			pthread_mutex_unlock(&gpiopattern_swap_lock);
+			
 			volatile uint32_t *gpio_ledstatus =
-					gpiopattern_ledstatus_phases[gpiopattern_ledstatus_phases_readidx][phase];
+					gpiopattern_ledstatus_phases[idx][phase];
 
 			// prepare for lighting LEDs by setting col pins to output
 			for (i = 0; i < 12; i++) {
@@ -294,6 +301,8 @@ void check_rotary_encoders(int switchscan)
 			lastCode[i]=code[i];
 			switchscan = switchscan + (1<<((i*2)+8));
 //			printf("%d end of UP %d %d\n",i, switchscan, (1<<((i*2)+8)));
+// If your knobs rotate the display in the wrong direction, change the
+// following line to: knobValue[i]--;
 			knobValue[i]++;	//bugfix 20181225
 
 		}
@@ -302,6 +311,8 @@ void check_rotary_encoders(int switchscan)
 			lastCode[i]=code[i];
 			switchscan = switchscan + (2<<((i*2)+8));
 //			printf("%d end of DOWN %d %d\n",i,switchscan, (2<<((i*2)+8)));
+// If your knobs rotate the display in the wrong direction, change the
+// following line to: knobValue[i]++;
 			knobValue[i]--;	// bugfix 20181225
 		}
 	}
