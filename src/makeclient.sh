@@ -7,3 +7,7 @@
 cd /opt/pidp11/src/02.3_simh/4.x+realcons/src
 sudo make -f quickmake
 cd ../../..
+
+echo
+echo "Client binary compiled OK!"
+echo
