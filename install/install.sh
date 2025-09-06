@@ -3,6 +3,7 @@
 #
 # install script for PiDP-11
 # v20241127
+# v20250905 - Import HOME fixes from bbqsrc / pidp11 Commit 1c126ac
 #
 #PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -175,7 +176,7 @@ while true; do
         [Yy]* ) 
             # setup 'pdp.sh' (script to return to screen with pidp11) 
             # in home directory if it is not there yet
-            test ! -L /home/pi/pdp.sh && ln -s /opt/pidp11/etc/pdp.sh /home/pi/pdp.sh
+            test ! -L $HOME/pdp.sh && ln -s /opt/pidp11/etc/pdp.sh $HOME/pdp.sh
             # easier to use - just put a pdp11 command into /usr/local
             sudo ln -f -s /opt/pidp11/etc/pdp.sh /usr/local/bin/pdp11
             # the pdp11control script into /usr/local:
@@ -215,13 +216,13 @@ while true; do
                         # add pdp11 to the end of pi's .profile to let a new login 
                         # grab the terminal automatically
                         #   first, make backup .foo copy...
-                        test ! -f /home/pi/profile.foo && cp -p /home/pi/.profile /home/pi/profile.foo
+                        test ! -f $HOME/profile.foo && cp -p $HOME/.profile $HOME/profile.foo
                         #   add the line to .profile if not there yet
-                        if grep -xq "pdp11 # autostart" /home/pi/.profile
+                        if grep -xq "pdp11 # autostart" $HOME/.profile
                         then
                             echo .profile already contains pdp11 for autostart, OK.
                         else
-                            sed -e "\$apdp11 # autostart" -i /home/pi/.profile
+                            sed -e "\$apdp11 # autostart" -i $HOME/.profile
                         fi
 			echo
 			echo autostart via .profile for headless use without GUI
@@ -271,14 +272,14 @@ while true; do
     read -p "Add VT-52 desktop icon and desktop settings? " prxn
     case $prxn in
         [Yy]* ) 
-            cp /opt/pidp11/install/vt52.desktop /home/pi/Desktop/
-            cp /opt/pidp11/install/vt52fullscreen.desktop /home/pi/Desktop/
-            cp /opt/pidp11/install/tty.desktop /home/pi/Desktop/
-            cp /opt/pidp11/install/tek.desktop /home/pi/Desktop/
-            cp /opt/pidp11/install/pdp11control.desktop /home/pi/Desktop/
+            cp /opt/pidp11/install/vt52.desktop $HOME/Desktop/
+            cp /opt/pidp11/install/vt52fullscreen.desktop $HOME/Desktop/
+            cp /opt/pidp11/install/tty.desktop $HOME/Desktop/
+            cp /opt/pidp11/install/tek.desktop $HOME/Desktop/
+            cp /opt/pidp11/install/pdp11control.desktop $HOME/Desktop/
 
             #make pcmanf run on double click, change its config file
-            config_file="/home/pi/.config/libfm/libfm.conf"
+            config_file="$HOME/.config/libfm/libfm.conf"
             # Create the directory if it doesn't exist
             mkdir -p "$(dirname "$config_file")"
             # Add or update the quick_exec setting
