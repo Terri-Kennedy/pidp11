@@ -154,8 +154,13 @@ while true; do
             sudo $pidpath/src/makeclient.sh
             sudo $pidpath/src/makeserver.sh
             echo
-            echo recompiled PiDP-11 binaries from source.
-            break
+            echo Recompiled PiDP-11 binaries from source.
+  			sudo cp $pidpath/bin/$subdir/vt52 $pidpath/bin/
+  			sudo cp $pidpath/bin/$subdir/sty $pidpath/bin/
+  			sudo cp $pidpath/bin/$subdir/tek4010 $pidpath/bin/
+	 		echo
+			echo Installed precompiled terminal emulator binaries
+  break
 	    ;;
         [Ss]* ) 
             echo Skipped putting new binaries in place, things left untouched. 
