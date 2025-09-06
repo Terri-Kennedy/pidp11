@@ -3,7 +3,7 @@
 #
 # install script for PiDP-11
 # v20241127
-# v20250905 - Import HOME fixes from bbqsrc / pidp11 Commit 1c126ac
+# v20250905 - Import HOME fixes from bbqsrc / pidp11 Commit 1c126ac, move architecture detection earlier
 #
 #PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -117,23 +117,23 @@ esac
 pidpath=/opt/pidp11
 
 while true; do
+    # Query the system architecture
+    ARCH=$(dpkg-architecture --query DEB_HOST_ARCH)
     echo
-    read -p "(Y) to install precompiled binaries, or (C)ompile from source, or (S)kip? " prxn
+    if [ "$ARCH" = "arm64" ]; then
+        subdir=backup64bit-binaries
+        echo "This Raspberry Pi is running a 64-bit operating system."
+    elif [ "$ARCH" = "amd64" ]; then
+        subdir=backupAmd64-binaries
+        echo "This is a amd64 Linux system, not a Raspberry Pi - OK,  installing."
+    else
+        subdir=backup32bit-binaries
+    	echo "This Raspberry Pi is running a 32-bit operating system."
+    fi
+    echo
+	read -p "(Y) to install precompiled binaries, or (C)ompile from source, or (S)kip? " prxn
     case $prxn in
         [Yy]* ) 
-            # Query the system architecture
-            ARCH=$(dpkg-architecture --query DEB_HOST_ARCH)
-            echo
-            if [ "$ARCH" = "arm64" ]; then
-                    subdir=backup64bit-binaries
-                echo "This Raspberry Pi is running a 64-bit operating system."
-            elif [ "$ARCH" = "amd64" ]; then
-                    subdir=backupAmd64-binaries
-                echo "This is a amd64 Linux system, not a Raspberry Pi - OK, installing."
-                else
-                    subdir=backup32bit-binaries
-                echo "This Raspberry Pi is running a 32-bit operating system."
-            fi
             echo
             echo Copying binaries from /opt/pidp11/bin/$subdir
             sudo cp $pidpath/bin/$subdir/pdp11_realcons $pidpath/src/02.3_simh/4.x+realcons/bin-rpi/pdp11_realcons
