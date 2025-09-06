@@ -26,8 +26,9 @@ echo ======================
 echo
 echo The script can be re-run at any time to change things. Re-running the install
 echo script and answering \'n\' to questions will leave those things unchanged.
-echo You can recompile from source, but it is easier to just install the precompiled
-echo binaries. 
+echo Compiling from source is STRONGLY recommended as the precompiled binaries may
+echo not be up-to-date and that part of the install has received much less testing.
+echo If you prefer, you can just install the precompiled binaries. 
 echo
 echo Too Long, Didn\'t Read?
 echo Just say Yes to everything.
@@ -153,14 +154,16 @@ while true; do
             sudo rm $pidpath/src/11_pidp_server/pidp11/bin-rpi/pidp1170_blinkenlightd
             sudo $pidpath/src/makeclient.sh
             sudo $pidpath/src/makeserver.sh
+			# to run a RT thread:
+   			sudo setcap cap_sys_nice+ep /opt/pidp11/src/11_pidp_server/pidp11/bin-rpi/pidp1170_blinkenlightd
             echo
             echo Recompiled PiDP-11 binaries from source.
   			sudo cp $pidpath/bin/$subdir/vt52 $pidpath/bin/
   			sudo cp $pidpath/bin/$subdir/sty $pidpath/bin/
   			sudo cp $pidpath/bin/$subdir/tek4010 $pidpath/bin/
 	 		echo
-			echo Installed precompiled terminal emulator binaries
-  break
+			echo Installed precompiled terminal emulator binaries.
+  			break
 	    ;;
         [Ss]* ) 
             echo Skipped putting new binaries in place, things left untouched. 
