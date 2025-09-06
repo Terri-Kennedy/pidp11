@@ -20,6 +20,7 @@
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+ 06-Jul-2025  TK    Merge mutex additions from Eric N
  05-Jul-2017  MH    added a variable for GPIOPATTERN_UPDATE_PERIOD_US
  08-May-2016  JH    fix: MMR0 converted code -> led pattern BEFORE history/low pass
  01-Apr-2016  OV    almost perfect before VCF SE
@@ -91,6 +92,9 @@
 #include "bitcalc.h"
 #include "rpc_blinkenlight_api.h"
 #include "gpiopattern.h"
+
+// single mutex protecting double-buffer index swap
+pthread_mutex_t gpiopattern_swap_lock = PTHREAD_MUTEX_INITIALIZER;
 
 // pointer into double buffer
 int gpiopattern_ledstatus_phases_readidx = 0; // read page, used by GPIO mux
@@ -548,10 +552,12 @@ void *gpiopattern_update_leds(int *terminate)
 			}
 		}
 
-		// switch pages of double buffer
-		gpiopattern_ledstatus_phases_readidx = gpiopattern_ledstatus_phases_writeidx;
+		// switch pages of double buffer (atomic hand-off)
+		pthread_mutex_lock(&gpiopattern_swap_lock);
+  		gpiopattern_ledstatus_phases_readidx = gpiopattern_ledstatus_phases_writeidx;
 		gpiopattern_ledstatus_phases_writeidx = !gpiopattern_ledstatus_phases_writeidx;
-
+		pthread_mutex_unlock(&gpiopattern_swap_lock);
+		
 	} // while(! terminate)
 	return 0;
 }
