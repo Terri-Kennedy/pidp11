@@ -13,18 +13,18 @@ error_cause="noerror"
 if [ ! -f "/etc/os-release" ]; then
 	error_cause="norelease"
 	echo
-	echo  "Cannot determine OS version (missing /etc/os-release file)"
+	echo  "Cannot determine OS version (missing /etc/os-release file)."
 fi
 
 grep -i "bookworm" "/etc/os-release" >/dev/null
 if [ $? != 0 ]; then
 	error_cause="nobookworm"
 	echo
-	echo "OS version is not Debian Bookworm"
+	echo "OS version is not Debian Bookworm."
 fi
 
 if [ "$error_cause" != "noerror" ]; then
-	echo "Canceling the install is strongly recommended"
+	echo "Canceling the install is strongly recommended."
 	echo
 	while true; do
 		read -p "Do you wish to cancel the install? " yn
