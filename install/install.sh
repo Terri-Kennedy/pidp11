@@ -7,6 +7,47 @@
 #
 #PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
+# Assume we're good to go unless we find out otherwise
+error_cause="noerror"
+
+if [ ! -f "/etc/os-release" ]; then
+	error_cause="norelease"
+	echo
+	echo  "Cannot determine OS version (missing /etc/os-release file)"
+fi
+
+grep -i "bookworm" "/etc/os-release" >/dev/null
+if [ $? != 0 ]; then
+	error_cause="nobookworm"
+	echo
+	echo "OS version is not Debian Bookworm"
+fi
+
+if [ "$error_cause" != "noerror" ]; then
+	echo "Canceling the install is strongly recommended"
+	echo
+	while true; do
+		read -p "Do you wish to cancel the install? " yn
+		case $yn in
+            [Yy]* )
+				# User decided to cancel - good choice
+				echo
+				echo "Canceling the install and exiting."
+				echo
+				exit 1
+				break
+			;;
+			[Nn]* ) 
+				echo
+				echo "Continuing with an unsupported operating system - use at your own risk!"
+				echo
+				break
+    		;;
+			* ) echo "Please answer yes or no.";;
+		esac
+    done
+fi
+# We made it out of the OS checks, proceed with installation
 
 # check this script is NOT run as root
 if [ "$(whoami)" = "root" ]; then
