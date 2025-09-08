@@ -102,6 +102,10 @@ while true; do
             ;;
         [Nn]* ) 
             echo Skipped the setting of access privileges.
+			echo To do this manually later, give the following commands:
+            echo "    sudo chmod +s /opt/pidp11/src/11_pidp_server/scanswitch/scansw"
+            echo "    sudo chmod +s /opt/pidp11/src/11_pidp_server/pidp11/bin-rpi/pidp1170_blinkenlightd"
+            echo "    sudo setcap cap_sys_nice+ep /opt/pidp11/src/11_pidp_server/pidp11/bin-rpi/pidp1170_blinkenlightd"
 	    break
             ;;
         * ) echo "Please answer yes or no.";;
@@ -146,7 +150,9 @@ case $prxn in
 	    sudo setcap cap_net_raw,cap_net_admin=eip /opt/pidp11/src/02.3_simh/4.x+realcons/bin-rpi/pdp11_realcons
 	    ;;
     [Nn]* ) 
-	    echo Skipped setting client11 permissions - OK if already set, otherwise Ethernet will not work
+	    echo Skipped setting client11 permissions - OK if already set, otherwise Ethernet will not work.
+	 	echo To do this manually later, give the following command:
+		echo "    sudo setcap cap_net_raw,cap_net_admin=eip /opt/pidp11/src/02.3_simh/4.x+realcons/bin-rpi/pdp11_realcons"
 	    break
 	    ;;
 	* ) echo "Please answer Y or N.";;
