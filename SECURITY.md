@@ -1,7 +1,7 @@
 # Security Policy
 
-It is the poolicy of this project to create "secure by default"
-software, althoug as has too often been proven, that isn't always
+It is the policy of this project to create "secure by default"
+software, although as has too often been proven, that isn't always
 practical. We appreciate any security reports, ideally as described
 in the "reporting a vulnerability" section below.
 
@@ -12,7 +12,7 @@ in the "reporting a vulnerability" section below.
 
 At present the project has not created any official releases, so 
 when reporting a security issue, plese use the commit ID and any
-other relevant information ehen reporting vulnerabilities at this
+other relevant information when reporting vulnerabilities at this
 time.
 
 ## Reporting a Vulnerability
@@ -20,7 +20,8 @@ time.
 Please email terri-decus@glaver.org with as detailed a report
 as possible, including specific commits where possible. That
 mailbox is ony accessible by the project leader (me) and is
-hosted on a system that noone else has access to.
+hosted on a system that noone else has access to. PGP signed
+submissions are encouraged.
 
 I will endeavor to respond to all reports within 24 hours,
 although if I'm traveling the timeframe may stretch out for
