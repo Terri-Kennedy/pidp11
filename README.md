@@ -1,4 +1,4 @@
-# Development fork for LED Fixes + Feature enhancements
+# Development fork for LED Fixes + Feature Enhancements
 
 This fork is not yet ready for use.
 
@@ -8,7 +8,7 @@ The following is the original README from the parent obsolescence/pidp11 repo an
 
 Main web sites:
 - https://obsolescence.dev/pdp11 - Overview & context
-- https://obsolescence.wixsite.com/obsolescence/pidp11 - Further details
+- https://obsolescence.wixsite.com/obsolescence/pidp-11 - Further details
 - https://groups.google.com/g/pidp-11 - User group
 
 <img src="https://obsolescence.dev/images/pidp11/pidp11.jpg" align="center" /> 
