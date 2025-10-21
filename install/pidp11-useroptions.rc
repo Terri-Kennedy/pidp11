@@ -2,7 +2,7 @@
 #
 # This file is included when "pidp11control" is run. You can set
 # environment variables in this script or perform other steps at
-# startup or shutdown.
+# startup.
 #
 # CAUTION: There is no syntax checking when this file is executed.
 #          Any errors should appear in the pdp11control window.
