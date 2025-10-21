@@ -20,6 +20,7 @@
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+ 01-Sep-2025  TK    Change list is now at https://github.com/Terri-Kennedy/pidp11/commits/main/
  30-Nov-2024  OV:   Re-applied lost bug fix for race condition.
  			Symptoms: incidental freezing of LEDs, 
 			but rotary LEDs still work.
@@ -51,7 +52,7 @@
 
 #define MAIN_C_
 
-#define VERSION	"v1.4.1"
+#define VERSION	"v1.4.1-a"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -702,6 +703,18 @@ int main(int argc, char *argv[])
         printf("Dump of register <-> control data struct:\n");
         blinkenlight_panels_diagprint(blinkenlight_panel_list, stdout);
         exit(0);
+    }
+
+	// Check for environment settings for knobs
+    environ = getenv("PIDP_11_KNOB_ADDR");
+    if (environ != NULL)
+    {
+        knobValue[0] = atoi(environ) & 0x7;
+    }
+    environ = getenv("PIDP_11_KNOB_DATA");
+    if (environ != NULL)
+    {
+        knobValue[1] = atoi(environ) & 0x3;
     }
 
     gpio_mux_thread_start();
