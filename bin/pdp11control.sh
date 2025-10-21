@@ -8,6 +8,11 @@ pidp11="/opt/pidp11/bin/pidp11.sh"
 pidp_dir=`dirname $pidp11`
 pidp_bin=`basename $pidp11`
 
+# First, check to see if we have a pidp11.rc
+if [ -f "/opt/pidp11/pidp11-useroptions.rc" ]; then
+	source /opt/pidp11/pidp11-useroptions.rc
+fi
+
 # Requires screen utility for detached pidp10 console functionality.
 #
 #test -x /usr/bin/screen || ( echo "screen not found" && exit 0 )
