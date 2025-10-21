@@ -8,7 +8,7 @@ pidp11="/opt/pidp11/bin/pidp11.sh"
 pidp_dir=`dirname $pidp11`
 pidp_bin=`basename $pidp11`
 
-# First, check to see if we have a pidp11.rc
+# First, check to see if we have a pidp11-useroptions.rc
 if [ -f "/opt/pidp11/pidp11-useroptions.rc" ]; then
 	source /opt/pidp11/pidp11-useroptions.rc
 fi
