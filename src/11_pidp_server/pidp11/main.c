@@ -673,7 +673,7 @@ static void register_controls()
  */
 int main(int argc, char *argv[])
 {
-
+	char * environ;
     print_level = LOG_NOTICE;
     // print_level = LOG_DEBUG;
     if (!parse_commandline(argc, argv)) {
@@ -705,7 +705,7 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-	// Check for environment settings for knobs
+    // Check for environment settings for knobs
     environ = getenv("PIDP_11_KNOB_ADDR");
     if (environ != NULL)
     {
