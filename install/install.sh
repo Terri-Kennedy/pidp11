@@ -16,14 +16,23 @@ if [ ! -f "/etc/os-release" ]; then
 	echo  "Cannot determine OS version (missing /etc/os-release file)."
 fi
 
-grep -i "bookworm" "/etc/os-release" >/dev/null
+grep -iE "bookworm|trixie" "/etc/os-release" >/dev/null
 if [ $? != 0 ]; then
 	error_cause="nobookworm"
 	echo
 	echo "OS version is not Debian Bookworm."
 fi
 
+# Temporary test until Trixie has more testing done.
+grep  -i "trixie" "/etc/os-release" >/dev/null
+if [ $? = 0 ]; then
+        error_cause="trixie"
+	echo
+	echo "Support for Debian Trixie is largely untested."
+fi
+
 if [ "$error_cause" != "noerror" ]; then
+	echo
 	echo "Canceling the install is strongly recommended."
 	echo
 	while true; do
