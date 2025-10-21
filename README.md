@@ -18,7 +18,7 @@ Credits: The core components in the PiDP-11 project are the simH simulator (http
 # Install instructions
 
     cd /opt
-    sudo git clone https://github.com/obsolescence/pidp11.git
+    sudo git clone https://github.com/Terri-Kennedy/pidp11.git
     /opt/pidp11/install/install.sh
 
 Note that you do not necessarily need to have the PiDP-11 hardware. 
