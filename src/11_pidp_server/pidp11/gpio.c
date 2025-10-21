@@ -20,6 +20,7 @@
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+ 01-Sep-2025  TK    Change list is now at https://github.com/Terri-Kennedy/pidp11/commits/main/
  06-Jul-2025  TK    Merge mutex additions from Eric N, add comments about knob rotation direction
  18-Dec-2023  OV    new GPIO interface using the code of pinctrl, needed for Pi 5
  14-Aug-2019  OV    fix for Raspberry Pi 4's different pullup configuration
@@ -161,7 +162,7 @@ void *blink(int *terminate)
 		gpio_set_pull(rows[i], PULL_UP);
 	}
 
-	printf("\nPiDP-11 FP 20250706\n");
+	printf("\nPiDP-11 FP 20251020\n");
 
 // ========== TEMPORARY TEST LOOP
 	while (*terminate == 0) {
@@ -275,9 +276,25 @@ void check_rotary_encoders(int switchscan)
 	// Gray encoding: rotate down sequence = 11 -> 10 -> 00 -> 01 -> 11
 
 	static int lastCode[2] = {3,3};
+	static int direction = -1;
+	static char* envdirection;
 	int code[2];
 	int i;
-
+	
+	if (direction == -1)
+	{
+		// First pass through, check environment
+		// Assume PIDP_11_ROTATION is not set
+		direction = 0;
+		envdirection = getenv("PIDP_11_ROTATION");
+		if (envdirection != NULL)
+		{
+			if (strcmp(envdirection, "FLIP") == 0)
+        	{
+				direction = 1;
+			}
+		}
+	}
 	code[0] = (switchscan & 0x300) >> 8;
 	code[1] = (switchscan & 0xC00) >> 10;
 	switchscan = switchscan & 0xff;	// set the 4 bits to zero
@@ -300,32 +317,22 @@ void check_rotary_encoders(int switchscan)
 		{
 			lastCode[i]=code[i];
 			switchscan = switchscan + (1<<((i*2)+8));
-//			printf("%d end of UP %d %d\n",i, switchscan, (1<<((i*2)+8)));
-// If your knobs rotate the display in the wrong direction, change the
-// following line to: knobValue[i]--;
-			knobValue[i]++;	//bugfix 20181225
-
+			if (direction == 1)
+    			knobValue[i]--;
+    		else
+    			knobValue[i]++;
 		}
 		else if ((code[i]==3) && (lastCode[i]==2))
 		{
 			lastCode[i]=code[i];
 			switchscan = switchscan + (2<<((i*2)+8));
-//			printf("%d end of DOWN %d %d\n",i,switchscan, (2<<((i*2)+8)));
-// If your knobs rotate the display in the wrong direction, change the
-// following line to: knobValue[i]++;
-			knobValue[i]--;	// bugfix 20181225
+			if (direction == 1)
+    			knobValue[i]++;
+    		else
+    			knobValue[i]--;
+
 		}
 	}
-
-
-//	if (knobValue[0]>7)
-//		knobValue[0] = 0;
-//	if (knobValue[1]>3)
-//		knobValue[1] = 0;
-//	if (knobValue[0]<0)
-//		knobValue[0] = 7;
-//	if (knobValue[1]<0)
-//		knobValue[1] = 3;
 
 	knobValue[0] = knobValue[0] & 7;
 	knobValue[1] = knobValue[1] & 3;
