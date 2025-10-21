@@ -15,7 +15,7 @@
 #    tion of the knobs should result in clockwise rotation of the
 #    corresponding LEDs. If instead you get backwards roration,
 #    un-comment the following line:
-export PIDP_11_ROTATION="FLIP"
+# export PIDP_11_ROTATION="FLIP"
 #
 # 3) Set the initial "ADDR" knob position (range: 0-7, default: 1)
 #    0 = Prog Phy
@@ -26,13 +26,13 @@ export PIDP_11_ROTATION="FLIP"
 #    5 = User I
 #    6 = Super I
 #    7 = Kernel I
-export PIDP_11_KNOB_ADDR=0
+# export PIDP_11_KNOB_ADDR=0
 #
 # 4) Set the initial "DATA" knob position (range: 0-3, default: 1)
 #    0 = Bus Reg
 #    1 = Data Paths
 #    2 = uADR CPU FPU
 #    3 = Display Register
-#export PIDP_11_KNOB_DATA=1
+# export PIDP_11_KNOB_DATA=1
 #
 # End of pidp11-useroptions.rc
