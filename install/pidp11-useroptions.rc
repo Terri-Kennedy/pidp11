@@ -9,7 +9,7 @@
 #
 # Examples:
 # 1) Execute arbitrary bash commands
-# echo "Hello from /opt/pidp11/pidp11.rc"
+# echo "Hello from /opt/pidp11/pidp11-useroptions.rc"
 #
 # 2) Change the rotation direction of the knobs (clockwise rota-
 #    tion of the knobs should result in clockwise rotation of the
