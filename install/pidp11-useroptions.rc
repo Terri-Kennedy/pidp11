@@ -13,7 +13,7 @@
 #
 # 2) Change the rotation direction of the knobs (clockwise rota-
 #    tion of the knobs should result in clockwise rotation of the
-#    corresponding LEDs. If instead you get backwards roration,
+#    corresponding LEDs. If instead you get backwards rotation,
 #    un-comment the following line:
 # export PIDP_11_ROTATION="FLIP"
 #
