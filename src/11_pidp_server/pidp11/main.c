@@ -52,7 +52,7 @@
 
 #define MAIN_C_
 
-#define VERSION	"v1.4.1-a"
+#define VERSION	"v1.4.1-b"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -88,7 +88,8 @@ int opt_test = 0;
 int opt_background = 0;
 int panel_lock = 0; // Default to panel unlocked
 int pwrDebounce=0;
-
+int addr_flag = 0;
+int data_flag = 0;
 
 extern long gpiopattern_update_period_us;
 
@@ -476,9 +477,19 @@ static int parse_commandline(int argc, char **argv)
             panel_lock = 1;
             break;
         case 'a':
+			if (addr_flag)
+			{
+				printf("Command line '-a %d' is overriding environment variable PIDP_11_KNOB_ADDR\n", *optarg & 0x7); 
+				printf("value %d. This may not be what you intended.\n",knobValue[0]);
+			}
             knobValue[0] = *optarg & 0x7;
             break;
         case 'd':
+			if (data_flag)
+			{
+				printf("Command line '-d %d' is overriding environment variable PIDP_11_KNOB_DATA\n", *optarg & 0x3); 
+				printf("value %d. This may not be what you intended.\n",knobValue[1]);
+			}		
             knobValue[1] = *optarg & 0x3;
             break;
         case 's':
@@ -676,7 +687,20 @@ int main(int argc, char *argv[])
 	char * environ;
     print_level = LOG_NOTICE;
     // print_level = LOG_DEBUG;
-    if (!parse_commandline(argc, argv)) {
+    // Check for environment settings for knobs
+    environ = getenv("PIDP_11_KNOB_ADDR");
+    if (environ != NULL)
+    {
+        knobValue[0] = atoi(environ) & 0x7;
+		addr_flag = 1;
+    }
+    environ = getenv("PIDP_11_KNOB_DATA");
+    if (environ != NULL)
+    {
+        knobValue[1] = atoi(environ) & 0x3;
+		data_flag = 1;
+    }
+	if (!parse_commandline(argc, argv)) {
         help();
         return 1;
     }
@@ -703,18 +727,6 @@ int main(int argc, char *argv[])
         printf("Dump of register <-> control data struct:\n");
         blinkenlight_panels_diagprint(blinkenlight_panel_list, stdout);
         exit(0);
-    }
-
-    // Check for environment settings for knobs
-    environ = getenv("PIDP_11_KNOB_ADDR");
-    if (environ != NULL)
-    {
-        knobValue[0] = atoi(environ) & 0x7;
-    }
-    environ = getenv("PIDP_11_KNOB_DATA");
-    if (environ != NULL)
-    {
-        knobValue[1] = atoi(environ) & 0x3;
     }
 
     gpio_mux_thread_start();
