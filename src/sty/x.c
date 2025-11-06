@@ -18,12 +18,10 @@
 
 // BB ===================================================
 #include <string.h>
-#define NUM_BUTTONS 2 //13
+#define NUM_BUTTONS 2
 Window button[NUM_BUTTONS];
 char* button_name[NUM_BUTTONS] = {
-"TTY Fast", "TTY Mute", "Type340",
-"DP3300", "VT-52", "VT-05", "Knight PDP11", "Knight TV",
-"GT40", "Tektronix", "PDP6 Pwr", "PDP10 Stat", "TTY Pwr" 
+"TTY Fast", "TTY Mute" 
 };
 /* Add a toggle button. */
 /*
