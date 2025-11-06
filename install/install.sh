@@ -20,7 +20,7 @@ grep -iE "bookworm|trixie" "/etc/os-release" >/dev/null
 if [ $? != 0 ]; then
 	error_cause="nobookworm"
 	echo
-	echo "OS version is not Debian Bookworm."
+	echo "OS version is not Debian Bookworm or Trixie."
 fi
 
 # Temporary test until Trixie has more testing done.
