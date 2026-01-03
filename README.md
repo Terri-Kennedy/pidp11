@@ -1,6 +1,6 @@
 # Development fork for LED Fixes + Feature Enhancements
 
-This fork is not yet ready for use.
+This fork is available for testing use. While I try not to break things here, there are no guarantees.
 
 The following is the original README from the parent obsolescence/pidp11 repo and may not be entirely applicable here. 
 
