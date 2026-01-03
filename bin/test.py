@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 #
 PROG_NAME = 'Name: PiDP1170Test.py'
 PROG_DESC = "Description: Stand-alone program to test the LEDs and switches on Oscar Vermulen's PiDP-11/70"
