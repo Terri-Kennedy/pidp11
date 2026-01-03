@@ -1,6 +1,6 @@
 procs=`screen -ls pidp11 | egrep '[0-9]+\.pidp11' | wc -l`
 if [ $procs -eq 0 ]; then
-	echo No PDP-11 emulator detected as running - check with pidp11control.
+	echo No PDP-11 emulator detected as running - check with pdp11control.
 	exit 1
 fi
 
