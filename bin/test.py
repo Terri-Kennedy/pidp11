@@ -1,11 +1,11 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #
-PROG_NAME = 'Name: PiDP1170Test.py'
+PROG_NAME = 'Name: test.py'
 PROG_DESC = "Description: Stand-alone program to test the LEDs and switches on Oscar Vermulen's PiDP-11/70"
 PROG_AUTHOR = 'Author: Neil Higgins'
-PROG_DOC = 'Documentation: See PDF document, "PiDP-11/70 Test Program"'
+PROG_DOC = 'Documentation: See PDF document, "/opt/pidp11/doc/PiDP-11_Test_Program.pdf"'
 PROG_LICENCE = 'Licence: Free as (in beer) and free (as in thought): Use at your own risk'
-PROG_VER = 'Version: 0.5 - Selective inversion of switches added, to enable display of logical state'
+PROG_VER = 'Version: 0.8 - Python version check added; GPIO in use check added'
 PROG_OPTIONS1 = 'Options: '
 PROG_OPTIONS2 = '  -h or --help  ... This help'
 PROG_OPTIONS3 = '  -d or --debug ... Run program with I/O turned off and debug data displayed'
@@ -255,6 +255,17 @@ COLUMN_GPIO_INPUT = 103 # Note: With weak pullup
 COLUMN_GPIO_STATES = (COLUMN_GPIO_TRIS, COLUMN_GPIO_LOW, COLUMN_GPIO_HIGH, COLUMN_GPIO_INPUT)
 #
 # ---------- Start of functions ----------
+#
+# See if blinkenlight server is using gpio (assumes gpio has been initialised)
+def gpio_in_use():
+    # LED and switch rows are configured by the blinkenlight server as outputs
+    for a_LED in LEDs:
+        if (GPIO.gpio_function(a_LED[LEDROWGPIO]) == GPIO.OUT):
+            return True
+    for a_switch in Switches:
+        if (GPIO.gpio_function(a_switch[SWROWGPIO]) == GPIO.OUT):
+            return True
+    return False
 #
 # Python doesn't have this
 def logical_xor(a, b):
@@ -673,6 +684,9 @@ def test_rotary_encoders():
 #
 # ---------- Start of main program ----------
 #
+if int(sys.version[0:1]) < 3:
+    print('This program requires python3 or backward compatible version')
+    sys.exit()
 if sys.argv[1:]:
     if ('-h' in sys.argv[1:]) or ('--help' in sys.argv[1:]):
         for a_string in PROG_HELP:
@@ -684,14 +698,25 @@ if sys.argv[1:]:
     else:
         print('Unknown command line option')
         sys.exit()
+#
 try:
-    # Initiallise hardware
+    # Initialise hardware
     if DEBUG:
         pass
     else:
         GPIO.setmode(GPIO.BCM)
+        if gpio_in_use():
+            print('It looks as if the blinkenlight server is, or has been, running')
+            print('If it is running, please kill it, then try again')
+            print('Press [Enter] to continue or ^C to exit')
+            _ = input()
         tristate_all()
     #
+except KeyboardInterrupt:
+    print()
+    sys.exit()
+#
+try:
     # Verify configuration
     if DEBUG:
         echo_config_data()
@@ -708,6 +733,7 @@ try:
     #
 except KeyboardInterrupt:
     pass
+#
 try:
     _ = os.system('clear')
     _ = input("Press enter to test rotary encoders (^C stops test)")
@@ -726,4 +752,3 @@ except KeyboardInterrupt:
     print()
 #
 # ----------End of program ----------
-
