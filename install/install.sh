@@ -317,7 +317,7 @@ while true; do
     case $prxn in
         [Yy]* ) 
             cd /opt/pidp11
-            wget -O /opt/pidp11/systems.tar.gz http://pidp.net/pidp11/systems.tar.gz
+            wget -O /opt/pidp11/systems.tar.gz http://obsolescence.dev/pidp11/systems.tar.gz
             echo "Decompressing... (might take a while)"
             gzip -d systems.tar.gz
             tar -xvf systems.tar
