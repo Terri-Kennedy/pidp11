@@ -20,14 +20,15 @@
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
- 01-Sep-2025  TK    Change list is now at https://github.com/Terri-Kennedy/pidp11/commits/main/
- 06-Jul-2025  TK    Merge mutex additions from Eric N, add comments about knob rotation direction
- 18-Dec-2023  OV    new GPIO interface using the code of pinctrl, needed for Pi 5
- 14-Aug-2019  OV    fix for Raspberry Pi 4's different pullup configuration
- 01-Jul-2017  MH    remove INP_GPIO before OUT_GPIO and change knobValue
- 01-Apr-2016  OV    almost perfect before VCF SE
- 15-Mar-2016  JH    display patterns for brightness levels
- 16-Nov-2015  JH    acquired from Oscar
+ 21-May-2026  BQT/MK Change rotary decoding to properly work with gray code sequence.
+ 01-Sep-2025  TK     Change list is now at https://github.com/Terri-Kennedy/pidp11/commits/main/
+ 06-Jul-2025  TK     Merge mutex additions from Eric N, add comments about knob rotation direction
+ 18-Dec-2023  OV     new GPIO interface using the code of pinctrl, needed for Pi 5
+ 14-Aug-2019  OV     fix for Raspberry Pi 4's different pullup configuration
+ 01-Jul-2017  MH     remove INP_GPIO before OUT_GPIO and change knobValue
+ 01-Apr-2016  OV     almost perfect before VCF SE
+ 15-Mar-2016  JH     display patterns for brightness levels
+ 16-Nov-2015  JH     acquired from Oscar
 
 
  gpio.c from Oscar Vermeules PiDP8-sources.
@@ -228,8 +229,8 @@ void *blink(int *terminate)
 				gpio_set_dir(rows[i], DIR_OUTPUT);
 				gpio_set_drive(rows[i], DRIVE_LOW);
 
-				nanosleep((struct timespec[]) { { 0, intervl / 100}}, NULL); 
-				// probably unnecessary long wait
+				nanosleep((struct timespec[]) { { 0, intervl / 200}}, NULL); 
+				// probably unnecessary long wait (MK: changed from 100 to 200 to increase sample frequency) 
 
 				switchscan = 0;
 				for (j = 0; j < 12; j++) // 12 switches in each row
@@ -268,76 +269,110 @@ void short_wait(void) // creates pause required in between clocked GPIO settings
 
 
 
+#define N_ROTARY    2
+#define N_STATES    4
+#define ADDR        0
+#define DATA        1
+#define UNDEFINED   (0)
+#define NORMAL      (1)
+#define REVERSED    (-1)        // early production PiDP11s had reversed rotarty encoders
+
+#define KNOB_SCALE 4            // scale to match transitions ber detent of the switch
+#define ADDR_MASK  0b00011111   // the range of values for the address knob (times 4)
+#define DATA_MASK  0b00001111   // the range of values for the data knob (times 4)
+
+#ifndef true
+  #define true    (1)
+  #define false   (0)
+#endif
+
 void check_rotary_encoders(int switchscan)
 {
-	// 2 rotary encoders. Each has two switch pins. Normally, both are 0 - no rotation.
-	// encoder 1: row1, bits 8,9. Encoder 2: row1, bits 10,11
-	// Gray encoding: rotate up sequence   = 11 -> 01 -> 00 -> 10 -> 11
-	// Gray encoding: rotate down sequence = 11 -> 10 -> 00 -> 01 -> 11
+    // 2 rotary encoders. Each has two switch pins.
+    // Encoder 1: row1, bits 8,9. Encoder 2: row1, bits 10,11
+    // Gray encoding: rotate up sequence   = 11 -> 01 -> 00 -> 10 -> 11
+    // Gray encoding: rotate down sequence = 11 -> 10 -> 00 -> 01 -> 11
 
-	static int lastCode[2] = {3,3};
-	static int direction = -1;
-	static char* envdirection;
-	int code[2];
-	int i;
-	
-	if (direction == -1)
-	{
-		// First pass through, check environment
-		// Assume PIDP_11_ROTATION is not set
-		direction = 0;
-		envdirection = getenv("PIDP_11_ROTATION");
-		if (envdirection != NULL)
-		{
-			if (strcmp(envdirection, "FLIP") == 0)
-        	{
-				direction = 1;
-			}
-		}
-	}
-	code[0] = (switchscan & 0x300) >> 8;
-	code[1] = (switchscan & 0xC00) >> 10;
-	switchscan = switchscan & 0xff;	// set the 4 bits to zero
+    // Array that describes the shift for each previous rotary code to the new rotary code.
+    //
+    // Basically, the first index is the old position, and the second index is the new position.
+    //  So for example: 00 -> 01 is a CCW movement.
+    //
+    const enum { CW, CCW, NOP, DTN } grayShift[ N_STATES ][ N_STATES ] 
+        = {{ NOP, CCW, CW,  NOP},
+           { CW,  NOP, NOP, CCW},
+           { CCW, NOP, NOP, CW },
+           { NOP, CW,  CCW, DTN}};
 
-//printf("code 0 = %d, code 1 = %d\n", code[0], code[1]);
 
-	// detect rotation
-	for (i=0;i<2;i++)
-	{
-		if ((code[i]==1) && (lastCode[i]==3))
-			lastCode[i]=code[i];
-		else if ((code[i]==2) && (lastCode[i]==3))
-			lastCode[i]=code[i];
-	}
+    static int direction = UNDEFINED;
 
-	// detect end of rotation
-	for (i=0;i<2;i++)
-	{
-		if ((code[i]==3) && (lastCode[i]==1))
-		{
-			lastCode[i]=code[i];
-			switchscan = switchscan + (1<<((i*2)+8));
-			if (direction == 1)
-    			knobValue[i]--;
-    		else
-    			knobValue[i]++;
-		}
-		else if ((code[i]==3) && (lastCode[i]==2))
-		{
-			lastCode[i]=code[i];
-			switchscan = switchscan + (2<<((i*2)+8));
-			if (direction == 1)
-    			knobValue[i]++;
-    		else
-    			knobValue[i]--;
+    int currentCode[ N_ROTARY ];
+    static int previousCode[ N_ROTARY ] = { 0b11, 0b11 };   // detent state of the knobs
+    static int knobState[ N_ROTARY ] = { 0, 0 };            // starting values for both knobs are set on first pass below 
+    static int knobLimit[ N_ROTARY ] = {ADDR_MASK, DATA_MASK};
+    static int nIdle[ N_ROTARY ] = {0,0};
+    int i;
 
-		}
-	}
+    currentCode[ ADDR ] = (switchscan >> 8) & 3;
+    currentCode[ DATA ] = (switchscan >> 10) & 3;
 
-	knobValue[0] = knobValue[0] & 7;
-	knobValue[1] = knobValue[1] & 3;
+    // On the first pass through this code, we'll figure out what the direction should be,
+    // and we'll also setup the other static variables with good initial states.
+    //
+    if (direction == UNDEFINED)
+    {
+        // First pass through, check environment
+        // Assume "normal" rotation direction, but if the environment variable
+        // "PIDP_11_ROTATION" is set to "FLIP" we'll reverse the rotation decoding.
 
-	// end result: bits 8,9 are 00 normally, 01 if UP, 10 if DOWN. Same for bits 10,11 (knob 2)
-	// these bits are not used, actually. Status is communicated through global variable knobValue[i]
+        char* envdirection;
+        direction = NORMAL;
+        envdirection = getenv("PIDP_11_ROTATION");
+        if (envdirection != NULL)
+        {
+            if (strcmp(envdirection, "FLIP") == 0)
+            {
+                direction = REVERSED;
+            }
+        }
 
+        memcpy(knobState, (int[]){ (knobValue[ADDR] * N_STATES) + (N_STATES / 2), 
+                (knobValue[DATA] * N_STATES) + (N_STATES / 2)}, sizeof(knobState));
+        memcpy(previousCode, currentCode, sizeof(currentCode)); /* On initial setup, we'll take the previousCode same as currentCode */
+    }
+
+    // Now to the meat of the function. Figure out what the current state (position) is for each knob.
+    // That's pretty simple. We take the old value, combined with the new value, and that gives us any
+    // state change, which we then translate into an update of the knobState.
+    //
+    // And then we pass that out as knobValue, scaled down as desired.
+    //
+    for ( i=0; i < N_ROTARY; i++)
+    {
+        int code = grayShift[previousCode[i]][currentCode[i]];
+        switch (code) {
+        case CW:
+            knobState[i] += direction;
+            break;
+        case CCW:
+            knobState[i] -= direction;
+            break;
+        case DTN:
+            // If we get two SYNC states (0b11), assume a detent and
+            // reset micro state
+            knobState[i] -= (knobState[i] % N_STATES) - (N_STATES / 2);
+            break;
+        case NOP:
+        default:
+            break;
+        }
+
+        knobState[i] = knobState[i] & knobLimit[i];
+        knobValue[i] = knobState[i] / KNOB_SCALE;
+
+        previousCode[i] = currentCode[i];
+
+    }
 }
+
