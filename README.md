@@ -2,7 +2,7 @@
 
 This fork is available for testing use. While I try not to break things here, there are no guarantees.
 
-The following is the original README from the parent obsolescence/pidp11 repo and may not be entirely applicable here. 
+The following is mostly the original README from the parent obsolescence/pidp11 repo and may not be entirely applicable here. 
 
 # Github repository for the PiDP-11 project
 
@@ -20,6 +20,9 @@ Credits: The core components in the PiDP-11 project are the simH simulator (http
     cd /opt
     sudo git clone https://github.com/Terri-Kennedy/pidp11.git
     /opt/pidp11/install/install.sh
+
+IMPORTANT: To obtain all of the fixes made so far, you MUST select
+"(C)ompile from source" when running the install.sh script.
 
 Note that you do not necessarily need to have the PiDP-11 hardware. 
 
