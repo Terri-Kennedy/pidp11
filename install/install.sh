@@ -155,7 +155,7 @@ echo
 read -p "Configure PCAP permissions for current user? " prxn
 case $prxn in
     [Yy]* ) 
-	    # Set permissions for client11 to be able to access the lobpcap interface in simh without sudo
+	    # Set permissions for client11 to be able to access the libpcap interface in simh without sudo
 	    sudo setcap cap_net_raw,cap_net_admin=ep /opt/pidp11/src/02.3_simh/4.x+realcons/bin-rpi/pdp11_realcons
 	    ;;
     [Nn]* ) 
@@ -200,6 +200,8 @@ while true; do
             sudo cp $pidpath/bin/$subdir/tek4010 $pidpath/bin/
             # to run a RT thread:
             sudo setcap cap_sys_nice+ep /opt/pidp11/src/11_pidp_server/pidp11/bin-rpi/pidp1170_blinkenlightd
+			# Set permissions for client11 to be able to access the libpcap interface in simh without sudo
+	    	sudo setcap cap_net_raw,cap_net_admin=ep /opt/pidp11/src/02.3_simh/4.x+realcons/bin-rpi/pdp11_realcons
             echo 
             echo Copied precompiled binaries into place.
             break
@@ -214,6 +216,8 @@ while true; do
             sudo $pidpath/src/makeserver.sh
 			# to run a RT thread:
    			sudo setcap cap_sys_nice+ep /opt/pidp11/src/11_pidp_server/pidp11/bin-rpi/pidp1170_blinkenlightd
+			# Set permissions for client11 to be able to access the libpcap interface in simh without sudo
+	    	sudo setcap cap_net_raw,cap_net_admin=ep /opt/pidp11/src/02.3_simh/4.x+realcons/bin-rpi/pdp11_realcons
             echo
             echo Recompiled PiDP-11 binaries from source.
   			sudo cp $pidpath/bin/$subdir/vt52 $pidpath/bin/
